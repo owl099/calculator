@@ -9,6 +9,8 @@ function appendCharacter(char) {
     if (isResultDisplayed && !isNaN(char)) {
         expression = ''; // Reset expression if a new number is entered after result
         isResultDisplayed = false;
+    } else if (isResultDisplayed && isNaN(char)) {
+        isResultDisplayed = false; // Allow to continue the expression if an operator is entered after result
     }
 
     // Prevent multiple decimal points in the same number
@@ -62,8 +64,10 @@ function handleKeyboardInput(event) {
     } else if (key === '.') { // If key is a decimal point
         appendCharacter(key);
     } else if (key === '+' || key === '-' || key === '*' || key === '/') { // If key is an operator
+        if (isResultDisplayed) {
+            isResultDisplayed = false; // Allow to continue the expression if an operator is entered after result
+        }
         appendCharacter(key);
-        isResultDisplayed = false; // Reset flag if operator is entered after result
     } else if (key === 'Enter' || key === '=') { // If key is Enter or =
         calculateResult();
     } else if (key === 'Backspace') { // If key is Backspace
@@ -107,7 +111,15 @@ function calculateSquareRoot() {
 // Function to calculate percentage
 function calculatePercentage() {
     try {
-        let result = eval(expression) / 100;
+        let result;
+        if (expression.includes('/')) {
+            // Multiply by 100 if it's a fraction
+            result = eval(expression) * 100;
+        } else {
+            // Divide by 100 if it's a whole number or a decimal
+            result = eval(expression) / 100;
+        }
+        
         expression = result.toString();
         updateDisplay(expression);
         isResultDisplayed = true;
@@ -116,8 +128,6 @@ function calculatePercentage() {
         clearDisplay();
     }
 }
-
-
 
 // Memory Functions
 function memoryClear() {
